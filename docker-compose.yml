@@ -1,0 +1,58 @@
+services:
+  # PHP App
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: laravel-app
+    restart: unless-stopped
+    volumes:
+      - .:/var/www
+    networks:
+      - laravel-net
+
+  # Nginx
+  web:
+    image: nginx:alpine
+    container_name: laravel-web
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - .:/var/www
+      - ./docker-compose/nginx/conf.d:/etc/nginx/conf.d
+    networks:
+      - laravel-net
+
+  bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: laravel-bot
+    restart: always
+    volumes:
+      - .:/var/www
+    # Asosiy buyruqni PHP-FPM o'rniga Nutgram-ga almashtiramiz
+    command: php artisan nutgram:run
+    depends_on:
+      - db
+      - app
+    networks:
+      - laravel-net
+
+  # Database
+  db:
+    image: mysql:8.0 # Yoki mariadb:alpine
+    container_name: laravel-db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: laravel_db
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
+    networks:
+      - laravel-net
+
+networks:
+  laravel-net:
+    driver: bridge
