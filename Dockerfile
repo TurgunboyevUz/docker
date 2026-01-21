@@ -1,9 +1,9 @@
 FROM php:8.4-fpm-alpine
 
-# Ishchi katalogni belgilash
+# Ishchi katalog
 WORKDIR /var/www
 
-# Tizim paketlarini o'rnatish
+# Tizim paketlari va PHP kengaytmalari
 RUN apk add --no-cache \
     curl \
     libpng-dev \
@@ -12,16 +12,24 @@ RUN apk add --no-cache \
     unzip \
     git \
     icu-dev \
-    oniguruma-dev
+    oniguruma-dev \
+    linux-headers
 
-# PHP kengaytmalarini o'rnatish
+# Laravel 12 uchun kerakli PHP kengaytmalari
 RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd intl
 
-# Composer-ni o'rnatish
+# Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Foydalanuvchi huquqlarini sozlash
+# Git xavfsizlik sozlamasi (Sizdagi xatolikni oldini olish uchun)
+RUN git config --global --add safe.directory /var/www
+
+# Foydalanuvchi yaratish (Ruxsatlar muammosini kamaytirish uchun)
 RUN addgroup -g 1000 www && adduser -u 1000 -G www -s /bin/sh -D www
+
+# Huquqlarni sozlash
+RUN chown -R www:www /var/www
+
 USER www
 
 EXPOSE 9000

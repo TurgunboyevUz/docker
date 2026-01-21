@@ -1,5 +1,5 @@
 services:
-  # PHP App
+  # PHP Application (Laravel)
   app:
     build:
       context: .
@@ -11,19 +11,7 @@ services:
     networks:
       - laravel-net
 
-  # Nginx
-  web:
-    image: nginx:alpine
-    container_name: laravel-web
-    restart: unless-stopped
-    ports:
-      - "80:80"
-    volumes:
-      - .:/var/www
-      - ./docker/nginx/conf.d:/etc/nginx/conf.d
-    networks:
-      - laravel-net
-
+  # Nutgram Bot (Long Polling Worker)
   bot:
     build:
       context: .
@@ -32,7 +20,6 @@ services:
     restart: always
     volumes:
       - .:/var/www
-    # Asosiy buyruqni PHP-FPM o'rniga Nutgram-ga almashtiramiz
     command: php artisan nutgram:run
     depends_on:
       - db
@@ -40,9 +27,22 @@ services:
     networks:
       - laravel-net
 
-  # Database
+  # Nginx Web Server
+  web:
+    image: nginx:alpine
+    container_name: laravel-web
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - .:/var/www
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d:ro
+    networks:
+      - laravel-net
+
+  # Database (MySQL)
   db:
-    image: mysql:8.0 # Yoki mariadb:alpine
+    image: mysql:8.0
     container_name: laravel-db
     restart: unless-stopped
     environment:
