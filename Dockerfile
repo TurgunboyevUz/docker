@@ -20,6 +20,8 @@ RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd intl
 # Composer-ni o'rnatish
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
+RUN composer install
+
 # Foydalanuvchi huquqlarini sozlash
 RUN addgroup -g 1000 www && adduser -u 1000 -G www -s /bin/sh -D www
 USER www
