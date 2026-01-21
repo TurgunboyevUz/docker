@@ -20,7 +20,7 @@ services:
       - "80:80"
     volumes:
       - .:/var/www
-      - ./docker-compose/nginx/conf.d:/etc/nginx/conf.d
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d
     networks:
       - laravel-net
 
